@@ -1,0 +1,5 @@
+Filter node in-degree 6-36 to decrease edge noise.
+Modularity applied to partition similar movies by color.
+High repulsion & attraction strength to separate groups cleanly yet pull similar movies together.
+Adjust text to highlight central movie(s) importance(s).
+In-degree for node size to provide size variation since out-degree limit was 5.
