@@ -1,0 +1,7 @@
+** Stats applied after filter of degree range 6-36 applied.
+Average Node Degree: 1.855
+-	On average, for movies not filtered out already, num movies a node is both and source and target for.
+Diameter of Graph: 9
+-	The greatest distance between any pair of movies. I.e. the max number of similar movies to watch to end up at a given movie's least similar (connected) movie.
+Average Path Length: ~2.455
+-	If you randomly choose a movie, and watch similar movies until there are no more similar movies, you will on average watch 2.5 movies.
