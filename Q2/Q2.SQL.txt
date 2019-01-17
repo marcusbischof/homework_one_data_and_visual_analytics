@@ -13,8 +13,19 @@ DROP TABLE IF EXISTS movie_overview;
 
 -- [insert your SQL statement(s) BELOW this line]
 
+/* Create the movie table. */
+CREATE TABLE movies(
+   id INT,
+   name TEXT,
+   score INT
+);
 
-
+/* Create the movie_cast table. */
+CREATE TABLE movie_cast(
+   movie_id INT,
+   cast_id INT,
+   cast_name TEXT
+);
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -28,8 +39,10 @@ DROP TABLE IF EXISTS movie_overview;
 
 -- [insert your SQLite command(s) BELOW this line]
 
-
-
+/* Structure of the provided .txt files is comma-separated values. */
+.mode csv
+.import ./movie-name-score.txt movies
+.import ./movie-cast.txt movie_cast
 
 -- [insert your SQLite command(s) ABOVE this line]
 
@@ -46,8 +59,10 @@ SELECT COUNT(*) FROM movie_cast;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/* Create indices on movies and movie_cast to speed up operations. */
+CREATE INDEX scores_index ON movies(score);
+CREATE INDEX cast_index ON movie_cast(cast_id);
+CREATE INDEX movie_index ON movies(id);
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -61,8 +76,14 @@ SELECT COUNT(*) FROM movie_cast;
 
 -- [insert your SQL statement(s) BELOW this line]
 
+/* Turn on headers so that we see column name(s) in output. */
+.headers on
 
-
+/* Calculates the proportion of movies with score > 50. */
+select (t.scores_gt_fifty * 1.0) / (s.total_scores * 1.0) as prop
+from
+(select count(*) as scores_gt_fifty from movies where score > 50) t,
+(select count(*) as total_scores from movies) s;
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -75,8 +96,14 @@ SELECT COUNT(*) FROM movie_cast;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/*
+  Select the 7 highest scoring movies.
+  Order first by score, desc, then by name, asc.
+*/
+select *
+from movies
+order by score desc, name asc
+limit 7;
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -89,8 +116,15 @@ SELECT COUNT(*) FROM movie_cast;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/*
+  We want to ensure that we group by cast_id and cast_name in order to output
+  these fields in the aggregation.
+*/
+select cast_id, cast_name, count(movie_id) as movie_count
+from movie_cast
+group by cast_id, cast_name
+order by movie_count desc, cast_name asc
+limit 5;
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -103,8 +137,29 @@ SELECT COUNT(*) FROM movie_cast;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/*
+  Inner select statements ensure that we are taking the average of the
+  correct actors and movies as per the homework.
+*/
+select c.cast_id, c.cast_name, avg(m.score) as average_score
+from
+(
+  select * from movies where score > 50
+) m
+inner join
+(
+  select m.cast_id, m.cast_name, m.movie_id from
+  movie_cast m
+  inner join
+  (
+    select cast_id from movie_cast group by cast_id having count(*) > 2
+  ) c
+  on c.cast_id == m.cast_id
+) c
+on m.id == c.movie_id
+group by c.cast_id
+order by average_score desc, c.cast_name asc
+limit 10;
 
 -- [insert your SQL statement(s) ABOVE this line]
 
