@@ -172,8 +172,27 @@ limit 10;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/* View that contains "good collaborators". */
+create view good_collaboration
+as select a.cast_member_id1, a.cast_member_id2, a.movie_count, avg(a.score) as average_movie_score
+  from (
+    select actor_pairs.cast_id_1 as cast_member_id1, actor_pairs.cast_id_2 as cast_member_id2, actor_pairs.num as movie_count, scores.score
+    from
+    (
+      select c.cast_id_1, c.cast_id_2, movie_id, count(*) as num
+      from (
+        select distinct a.cast_id as cast_id_1, b.cast_id as cast_id_2, a.movie_id
+        from movie_cast a inner join movie_cast b on a.movie_id = b.movie_id
+      ) c
+      where c.cast_id_1 <> c.cast_id_2
+      group by cast_id_1, cast_id_2
+      having count(*) > 3
+    ) actor_pairs inner join movies scores
+    on actor_pairs.movie_id = scores.id
+  ) a
+  where a.cast_member_id1 > a.cast_member_id2
+  group by a.cast_member_id1, a.cast_member_id2
+  having avg(a.score) >= 40;
 
 -- [insert your SQL statement(s) ABOVE this line]
 
