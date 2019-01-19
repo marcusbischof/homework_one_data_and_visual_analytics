@@ -209,8 +209,21 @@ SELECT AVG(average_movie_score) FROM good_collaboration;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/* Using the view created above, I found the 5 best collaborators, tie broken on cast_name. */
+select b.cast_member as cast_id, c.cast_name as cast_name, b.collaboration_score as collaboration_score
+from (
+  select cast_member, avg(average_movie_score) as collaboration_score from
+  (
+    select cast_member_id1 as cast_member, average_movie_score from good_collaboration
+    union all
+    select cast_member_id2 as cast_member, average_movie_score from good_collaboration
+  ) a
+  group by cast_member
+  order by collaboration_score desc
+) b inner join (select cast_id, cast_name from movie_cast group by cast_id, cast_name) c
+on b.cast_member = c.cast_id
+order by b.collaboration_score desc, c.cast_name asc
+limit 5;
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -223,8 +236,8 @@ SELECT AVG(average_movie_score) FROM good_collaboration;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+.mode csv
+.import ./movie-overview.txt movie_overview
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -234,8 +247,11 @@ SELECT AVG(average_movie_score) FROM good_collaboration;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/*
+  This should work, because the default simple tokenizer is used, which default
+  turns ASCII upppercase characters to lower for MATCH.
+*/
+SELECT count(*) count_overview FROM movie_overview WHERE overview MATCH 'fight';
 
 -- [insert your SQL statement(s) ABOVE this line]
 
@@ -248,8 +264,11 @@ SELECT AVG(average_movie_score) FROM good_collaboration;
 
 -- [insert your SQL statement(s) BELOW this line]
 
-
-
+/*
+  Selects ids of movies that contain terms love and story with no more
+  than 5 intervening terms in between.
+*/
+SELECT id FROM movie_overview WHERE overview MATCH 'love NEAR/5 story';
 
 -- [insert your SQL statement(s) ABOVE this line]
 
